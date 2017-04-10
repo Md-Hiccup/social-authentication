@@ -1,0 +1,3 @@
+to connect robomongo for mongodb
+    cd /usr/local/bin/robomongo/bin
+    ./robomongo
