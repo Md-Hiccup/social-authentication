@@ -7,12 +7,14 @@ var cookieParser = require('cookie-parser');
 var session = require('express-session');
 var morgan = require('morgan');
 var mongoose = require('mongoose');
-//var Promise = require("bluebird");
+var Promise = require("bluebird");
 var bodyParser = require('body-parser');
+var passport = require('passport');
+var flash = require('connect-flash');
 
 var routes = require('./app/routes');
 
-var configDb = require('./conifg/database');
+var configDb = require('./config/database');
 mongoose.connect(configDb.url);
 var db = mongoose.connection;
 db.on('error', console.error.bind(console, 'MongoDB connection error:'));
@@ -31,10 +33,13 @@ app.use(session({
     saveUninitialized : true,
     resave: true
 }));
+app.use(passport.initialize());
+app.use(passport.session());
+app.use(flash());
 
 app.use('/', routes);
 
 app.listen(port);
 console.log("server running on port : ",port);
 
-module.exports = (app);
+module.exports = app ;
