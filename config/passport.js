@@ -24,7 +24,7 @@ var passport= require('passport');
                 if (err)
                     return done(err);
                 if (user)
-                    return done(null, false, req.flash('singupMessage', 'That email already taken'));
+                    return done(null, false, req.flash('signupMessage', 'That email already taken'));
                 else {
                     var newUser = new User();
                     newUser.local.username = email;
@@ -39,5 +39,25 @@ var passport= require('passport');
             })
         })
     }));
+
+    passport.use('local-login', new LocalStrategy({
+        usernameField:  'email',
+        passwordField:  'password',
+        passReqToCallback:  true
+    },
+    function (req, email, password, done) {
+        process.nextTick(function () {
+            User.findOne({'local.username': email}, function (err, user) {
+                if(err)
+                    return done(err);
+                if(!user)
+                    return done(null, false, req.flash('loginMessage', 'No user found'));
+                if(user.local.password != password)
+                    return done(null, false, req.flash('loginMessage', 'Invalid password'));
+                return done(null, user);
+                })
+        })
+    }));
+
 
 module.exports = passport;

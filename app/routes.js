@@ -19,17 +19,23 @@ var passport = require('../config/passport');
         failureFlash: true
     }));
 
-    /*router.post('/signup', function (req, res) {
-     var newUser = new User();
-     newUser.local.username = req.body.email;
-     newUser.local.password = req.body.password;
-     newUser.save(function(err){
-     if(err)
-     throw  err;
-     });
-     res.redirect("/");
-     });
-     */
+    router.get('/login', function (req, res) {
+        res.render('login', {message: req.flash('loginMessage')});
+    });
+    router.post('/login', passport.authenticate('local-login',{
+        successRedirect: '/profile',
+        failureRedirect: '/login',
+        failureFlash: true
+    }));
+    
+    router.get('/profile', isLoggedIn, function (req, res) {
+        res.render('profile', { user : req.user });
+    });
+
+    router.get('/logout', function (req, res) {
+        req.logout();
+        res.redirect('/');
+    });
     router.get('/:username/:password', function (req, res) {
         var newUser = new User();
         newUser.local.username = req.params.username;
@@ -42,4 +48,14 @@ var passport = require('../config/passport');
         res.send("Success");
     });
 
+
 module.exports = router;
+
+
+function isLoggedIn(req, res, next){
+    if(req.isAuthenticated()){
+        return next();
+    }else {
+        res.redirect('/login');
+    }
+}
