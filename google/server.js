@@ -11,6 +11,7 @@ var Promise = require("bluebird");
 var bodyParser = require('body-parser');
 var passport = require('passport');
 var flash = require('connect-flash');
+var MongoStore = require('connect-mongo')(session);
 
 var routes = require('./app/routes');
 
@@ -31,11 +32,20 @@ app.use(bodyParser.urlencoded({extended : false}));
 app.use(session({
     secret : 'anytext',
     saveUninitialized : true,
-    resave: true
+    resave: true,
+    store: new MongoStore({ mongooseConnection: mongoose.connection,
+                            ttl:  60 * 60})
 }));
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(flash());
+
+app.use(function(req, res, next){
+    console.log(req.session);
+    console.log("===================");
+    console.log(req.user);
+    next();
+});
 
 app.use('/', routes);
 

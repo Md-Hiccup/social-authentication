@@ -28,7 +28,7 @@ var fs = require('fs');
                     return done(err);
                 if (user)
                     return done(null, false, req.flash('signupMessage', 'That email already taken'));
-                else {
+                 if(!req.user) {
                     var newUser = new User();
                     newUser.local.username = email;
                     newUser.local.password = newUser.generateHash(password);
@@ -38,7 +38,17 @@ var fs = require('fs');
                             throw err;
                         return done(null, newUser);
                     })
-                }
+                } else {
+                     var user = req.user;
+                     user.local.username = email;
+                     user.local.password = user.generateHash(password);
+
+                     user.save(function(err){
+                         if(err)
+                             throw err;
+                         return done(null, user);
+                     })
+                 }
             })
         })
     }));
@@ -65,31 +75,57 @@ var fs = require('fs');
     passport.use(new GoogleStrategy({
         clientID: configAuth.googleAuth.clientID,
         clientSecret: configAuth.googleAuth.clientSecret,
-        callbackURL: configAuth.googleAuth.callbackURL
+        callbackURL: configAuth.googleAuth.callbackURL,
+        passReqToCallback: true
     },
-     function(accessToken, refreshToken, profile, done) {
+     function(req, accessToken, refreshToken, profile, done) {
         process.nextTick(function(){
-            User.findOne({'google.id': profile.id}, function(err, user){
-                if(err)
-                    return done(err);
-                if(user) {
-                    return done(null, user);
-                }else {
-                    var newUser = new User();
-                    newUser.google.id = profile.id;
-                    newUser.google.token = accessToken;
-                    newUser.google.name = profile.displayName;
-                    newUser.google.email = profile.emails[0].value;
+            //user is not logged in yet
+            if(!req.user) {
+                User.findOne({'google.id': profile.id}, function (err, user) {
+                    if (err)
+                        return done(err);
+                    if (user) {
+                        if(!user.google.token){
+                            user.google.token = accessToken;
+                            user.google.name = profile.displayName;
+                            user.google.email = profile.emails[0].value;
+                            user.save(function(err){
+                                if(err)
+                                    throw err;
+                            });
+                        }
+                        return done(null, user);
+                    } else {
+                        var newUser = new User();
+                        newUser.google.id = profile.id;
+                        newUser.google.token = accessToken;
+                        newUser.google.name = profile.displayName;
+                        newUser.google.email = profile.emails[0].value;
 
-                    newUser.save(function(err){
-                        if(err)
-                            throw err;
-                        return done(null, newUser);
-                    });
-                 }
-                 console.log(profile.image);
-            });
-        });
+                        newUser.save(function (err) {
+                            if (err)
+                                throw err;
+                            return done(null, newUser);
+                        });
+                    }
+                    console.log(profile.image);
+                });
+                //user is logged in already, and needs to be merged
+            } else {
+                var user = req.user;
+                user.google.id = profile.id;
+                user.google.token = accessToken;
+                user.google.name = profile.displayName;
+                user.google.email = profile.emails[0].value;
+
+                user.save(function(err){
+                    if(err)
+                        throw err;
+                    return done(null, user);
+                });
+            }
+         });
       }
     ));
 

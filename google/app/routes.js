@@ -43,7 +43,44 @@ var passport = require('../config/passport');
         successRedirect : '/profile',
         failureRedirect : '/'
     }));
+    router.get('/connect/google', passport.authorize('google', { scope: ['profile', 'email'] }));
 
+    router.get('/connect/local', function(req, res){
+        res.render('connect-local.ejs', { message: req.flash('signupMessage')});
+    });
+
+    router.post('/connect/local', passport.authenticate('local-signup', {
+        successRedirect: '/profile',
+        failureRedirect: '/connect/local',
+        failureFlash: true
+    }));
+    router.get('/unlink/local', function(req, res){
+        var user = req.user;
+
+        user.local.username = null;
+        user.local.password = null;
+
+        user.save(function(err){
+            if(err)
+                throw err;
+            res.redirect('/profile');
+        });
+    });
+
+    router.get('/unlink/google', function(req, res){
+        var user = req.user;
+        user.google.token = null;
+
+        user.save(function(err){
+            if(err)
+                throw err;
+        res.redirect('/profile');
+        });
+    });
+
+
+
+/*
     router.get('/:username/:password', function (req, res) {
         var newUser = new User();
         newUser.local.username = req.params.username;
@@ -55,7 +92,7 @@ var passport = require('../config/passport');
         });
         res.send("Success");
     });
-
+*/
 
 module.exports = router;
 
