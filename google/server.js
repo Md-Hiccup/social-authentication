@@ -13,8 +13,6 @@ var passport = require('passport');
 var flash = require('connect-flash');
 var MongoStore = require('connect-mongo')(session);
 
-var routes = require('./app/routes');
-
 var configDb = require('./config/database');
 mongoose.connect(configDb.url);
 var db = mongoose.connection;
@@ -34,7 +32,7 @@ app.use(session({
     saveUninitialized : true,
     resave: true,
     store: new MongoStore({ mongooseConnection: mongoose.connection,
-                            ttl:  60 * 60})
+                            ttl:  2 * 24 * 60 * 60})
 }));
 app.use(passport.initialize());
 app.use(passport.session());
@@ -47,7 +45,13 @@ app.use(function(req, res, next){
     next();
 });
 
-app.use('/', routes);
+var auth = require('./app/routes/auth');
+var secure = require('./app/routes/secure');
+app.use('/auth', auth);
+app.use('/', secure);
+
+/*var routes = require('./app/routes');
+app.use('/', routes); */
 
 app.listen(port);
 console.log("server running on port : ",port);
