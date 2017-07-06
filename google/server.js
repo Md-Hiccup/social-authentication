@@ -12,6 +12,7 @@ var bodyParser = require('body-parser');
 var passport = require('passport');
 var flash = require('connect-flash');
 var MongoStore = require('connect-mongo')(session);
+var env = require('dotenv').load();
 
 var configDb = require('./config/database');
 mongoose.connect(configDb.url);
@@ -38,12 +39,12 @@ app.use(passport.initialize());
 app.use(passport.session());
 app.use(flash());
 
-app.use(function(req, res, next){
+/*app.use(function(req, res, next){
     console.log(req.session);
     console.log("===================");
     console.log(req.user);
     next();
-});
+});*/
 
 var auth = require('./app/routes/auth');
 var secure = require('./app/routes/secure');

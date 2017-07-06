@@ -2,10 +2,10 @@
  * Created by hussain on 10/4/17.
  */
 var LocalStrategy = require('passport-local').Strategy;
-var User = require('../app/models/user');
 var passport= require('passport');
 var GoogleStrategy = require('passport-google-oauth').OAuth2Strategy;
 var configAuth = require('./auth');
+var User = require('../app/models/user');
 var fs = require('fs');
 
     passport.serializeUser(function (user, done) {
