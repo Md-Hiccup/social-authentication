@@ -1,25 +1,31 @@
-// first
-    npm install     // to install all modules
+#   First Install All Dependencies
 
-// To run server
-	node server.js	or nodemon server.js
-	
+```sh
+$   npm install     
+```
 
-// To START robomongo (for mongodb)
-    cd /usr/local/bin/robomongo/bin
-    ./robomongo
+> All Folders contain separate server.js file 
+
+#   Run Server
+
+```sh
+$   node server.js	or nodemon server.js
+```
+
+#   To START robomongo (for mongodb)
+
+```sh
+$   cd /usr/local/bin/robomongo/bin
+$   ./robomongo
+```
 
 
-// modules
- 1.     mongodb     as database
- 2.     mongoose    as middleware b/w mongodb and nodejs
- 3.     passport    for authentication local, google, facebook, etc.
- 4.     bcrypt      for crypting password in hash
- 5.     connect-mongo   for perssistence session
+#   All Dependencies
 
-
-// files which are not useful for this project
-        -app.js
-        -routes.js
-
-// 
+| Library | Details |
+| ------- | ------- |
+| mongodb | as database |
+| mongoose | as middleware b/w mongodb and nodejs |
+| passport | for authentication local, google, facebook, etc. |
+| bcrypt | for crypting password in hash |
+| connect-mongo | for perssistence session |
